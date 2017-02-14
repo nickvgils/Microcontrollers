@@ -5,7 +5,7 @@
 **
 ** main.c
 **
-** Beschrijving:	ISR functions who are calling each other (without using the while loop )
+** Beschrijving:	LED pattern made by a lookup table as a struct
 ** Target:			AVR mcu
 ** Build:			avr-gcc -std=c99 -Wall -O3 -mmcu=atmega128 -D F_CPU=8000000UL -c ioisr.c
 **					avr-gcc -g -mmcu=atmega128 -o ioisr.elf ioisr.o
@@ -37,24 +37,15 @@ Version :    	DMK, Initial code
 	}
 }
 
-	// Init ISR
-	ISR( INT0_vect ) 	// called when input 0 changes
-	{
-		wait(3000); 	// wait 3 sec
-		PORTD = 0b00000010; // turn on pin 1 (LED)
-	}
+typedef struct {
+	unsigned char data;
+	unsigned int delay ;
+} PATTERN_STRUCT; // A struct has been defined as an binary data element and a preferred // delay. Saved as PATTERN_STRUCT
 
-	ISR( INT1_vect ) // called when input 1 changes
-	{
-		wait(3000); 	// wait 3 sec
-		PORTD = 0b00000100; // turn on pin 2 (LED)
-	}
+PATTERN_STRUCT pattern[] = {
+	{0b10000001, 2000}, {0b01000010, 2000}, {0b00100100, 2000}, {0b00011000, 2000}
+};	// A new PATTERN_STRUCT has been made with a pattern of different binaries.
 
-	ISR( INT2_vect ) // called when input 2 changes
-	{
-		wait(3000); // wait 3 sec
-		PORTD = 0b00000001; // turn on pin 0 (LED)
-	}
 
 
 /******************************************************************/
@@ -63,29 +54,31 @@ int main( void )
 short:			main() loop, entry point of executable
 inputs:			
 outputs:	
-notes:			Slow background task after init ISR
+notes:			
 Version :    	DMK, Initial code
 *******************************************************************/
 {
 	
 	// Init I/O
-	DDRD = 0b11111111;			// PORTD(0:7) output
+	DDRD = 0b11111111; // All pins PORTD are set to output
 
-	// Init Interrupt hardware
-	EICRA |= 0b00111111;			// INT2, INT1, INT0 rising edge
-	EIMSK |= 0b00000111;			// Enable INT1 & INT0
-	
-	// Enable global interrupt system
-	//SREG = 0x80;			// Of direct via SREG of via wrapper
-	sei();
-	
-	PORTD = 0b00000001; // pin 0 triggers a rising edge
+
+	int index = 0; // Counter
 
 	while (1)
 	{
-		wait( 10000 ); // waits infinity for 1 sec, does nothing in the while loop
+		if(index > 4) // If the counter has reached the last element
+		{
+			index = 0; // index back to zero to display the first element
+		}
+
+		// Write data to PORTD
+		PORTD = pattern[index].data; // portD is set to the data field of the // pattern index
+		wait(pattern[index].delay); // Wait is set to the delay field of the // pattern index
+	
+		index++;	// increment for next round
 	}
 
-	return 1;
+
 
 }

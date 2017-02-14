@@ -5,7 +5,7 @@
 **
 ** main.c
 **
-** Beschrijving:	ISR functions who are calling each other (without using the while loop )
+** Beschrijving:	blinking LEDS in PORTD between Pin 7 and Pin 6, ony if PORTC pin 0 is pressed
 ** Target:			AVR mcu
 ** Build:			avr-gcc -std=c99 -Wall -O3 -mmcu=atmega128 -D F_CPU=8000000UL -c ioisr.c
 **					avr-gcc -g -mmcu=atmega128 -o ioisr.elf ioisr.o
@@ -37,25 +37,6 @@ Version :    	DMK, Initial code
 	}
 }
 
-	// Init ISR
-	ISR( INT0_vect ) 	// called when input 0 changes
-	{
-		wait(3000); 	// wait 3 sec
-		PORTD = 0b00000010; // turn on pin 1 (LED)
-	}
-
-	ISR( INT1_vect ) // called when input 1 changes
-	{
-		wait(3000); 	// wait 3 sec
-		PORTD = 0b00000100; // turn on pin 2 (LED)
-	}
-
-	ISR( INT2_vect ) // called when input 2 changes
-	{
-		wait(3000); // wait 3 sec
-		PORTD = 0b00000001; // turn on pin 0 (LED)
-	}
-
 
 /******************************************************************/
 int main( void )
@@ -63,29 +44,26 @@ int main( void )
 short:			main() loop, entry point of executable
 inputs:			
 outputs:	
-notes:			Slow background task after init ISR
+notes:			
 Version :    	DMK, Initial code
 *******************************************************************/
 {
 	
 	// Init I/O
-	DDRD = 0b11111111;			// PORTD(0:7) output
-
-	// Init Interrupt hardware
-	EICRA |= 0b00111111;			// INT2, INT1, INT0 rising edge
-	EIMSK |= 0b00000111;			// Enable INT1 & INT0
-	
-	// Enable global interrupt system
-	//SREG = 0x80;			// Of direct via SREG of via wrapper
-	sei();
-	
-	PORTD = 0b00000001; // pin 0 triggers a rising edge
+	DDRD = 0b11111111;			// All pins PORTD are set to output
+	DDRC = 0b11111110; 			// All pins PORTC are set to output, except pin 0
 
 	while (1)
 	{
-		wait( 10000 ); // waits infinity for 1 sec, does nothing in the while loop
-	}
+		if(PINC & 1) 			// If Pin 0 (0b00000001) is pressed
 
-	return 1;
+		{
+			PORTD = 0b10000000;		// PortD: Pin 7 of set to on, rest off
+			wait( 500 );			// Wait 0,5 sec
+			PORTD = 0b00000000;		// PortD: all pins are off
+			wait( 500 );			// Wait 0,5 sec
+		}
+
+	}
 
 }
