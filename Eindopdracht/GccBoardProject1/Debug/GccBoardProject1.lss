@@ -23,13 +23,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000290  00000000  00000000  00002c60  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00007fee  00000000  00000000  00002ef0  2**0
+ 10 .debug_str    0000800a  00000000  00000000  00002ef0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000068a  00000000  00000000  0000aede  2**0
+ 11 .debug_loc    0000068a  00000000  00000000  0000aefa  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000098  00000000  00000000  0000b568  2**0
+ 12 .debug_ranges 00000098  00000000  00000000  0000b584  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_macro  000024a1  00000000  00000000  0000b600  2**0
+ 13 .debug_macro  00002f07  00000000  00000000  0000b61c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -316,9 +316,9 @@ Disassembly of section .text:
  170:	08 95       	ret
 
 00000172 <initBeginState>:
-int score = 0;
 int numbers[50];
 int currentPosition = 0;
+
 
 void initBeginState(void)
 {
@@ -706,13 +706,13 @@ void initBeginState(void)
 00000488 <main>:
  488:	1a ba       	out	0x1a, r1	; 26
  48a:	17 ba       	out	0x17, r1	; 23
- 48c:	cf ef       	ldi	r28, 0xFF	; 255
- 48e:	c4 bb       	out	0x14, r28	; 20
- 490:	61 de       	rcall	.-830    	; 0x154 <lcd_init>
- 492:	11 ba       	out	0x11, r1	; 17
- 494:	c2 b9       	out	0x02, r28	; 2
- 496:	10 92 64 00 	sts	0x0064, r1	; 0x800064 <__TEXT_REGION_LENGTH__+0x7e0064>
- 49a:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <__TEXT_REGION_LENGTH__+0x7e0061>
+ 48c:	11 ba       	out	0x11, r1	; 17
+ 48e:	10 92 64 00 	sts	0x0064, r1	; 0x800064 <__TEXT_REGION_LENGTH__+0x7e0064>
+ 492:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <__TEXT_REGION_LENGTH__+0x7e0061>
+ 496:	cf ef       	ldi	r28, 0xFF	; 255
+ 498:	c4 bb       	out	0x14, r28	; 20
+ 49a:	5c de       	rcall	.-840    	; 0x154 <lcd_init>
+ 49c:	c2 b9       	out	0x02, r28	; 2
  49e:	8e b5       	in	r24, 0x2e	; 46
  4a0:	82 60       	ori	r24, 0x02	; 2
  4a2:	8e bd       	out	0x2e, r24	; 46

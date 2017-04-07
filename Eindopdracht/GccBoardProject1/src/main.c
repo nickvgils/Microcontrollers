@@ -4,26 +4,15 @@
 #define ANSWER 1
 #define RESPONSE 2
 
-
-void wait( int );
+//prototypes
+void wait(int);
 void beginState(void);
 void exItrInit(void);
-/* ---------------------------------------------------------------------------
-** This software is in the public domain, furnished "as is", without technical
-** support, and with no warranty, express or implied, as to its usefulness for
-** any purpose.
-**
-** main.c
-**
-** Beschrijving:	blinking LEDS in PORTD between Pin 7 and Pin 6
-** Target:			AVR mcu
-** Build:			avr-gcc -std=c99 -Wall -O3 -mmcu=atmega128 -D F_CPU=8000000UL -c ioisr.c
-**					avr-gcc -g -mmcu=atmega128 -o ioisr.elf ioisr.o
-**					avr-objcopy -O ihex ioisr.elf ioisr.hex 
-**					or type 'make'
-** Author: 			nick.vangils@hotmail.com
-** -------------------------------------------------------------------------*/
+void initBeginState(void);
+void checkNumber(int);
+void vulEnToonGetallen(void);
 
+//includes
 #include "LCD.h"
 #include <avr/io.h>
 #include <util/delay.h>
@@ -32,11 +21,28 @@ void exItrInit(void);
 #include <stdlib.h>
 #include <time.h>
 
+/* ---------------------------------------------------------------------------
+** This software is in the public domain, furnished "as is", without technical
+** support, and with no warranty, express or implied, as to its usefulness for
+** any purpose.
+**
+** main.c
+**
+** Beschrijving:	GAME (Simon): Remember the lights that are blinking and imitate
+** Target:			AVR mcu
+** Build:			avr-gcc -std=c99 -Wall -O3 -mmcu=atmega128 -D F_CPU=8000000UL -c ioisr.c
+**					avr-gcc -g -mmcu=atmega128 -o ioisr.elf ioisr.o
+**					avr-objcopy -O ihex ioisr.elf ioisr.hex 
+**					or type 'make'
+** Author: 			nick.vangils@hotmail.com
+** -------------------------------------------------------------------------*/
 
+//variables
 int state = BEGINSTATE;
 int score = 0;
 int numbers[50];
 int currentPosition = 0;
+
 
 void initBeginState(void)
 {
@@ -46,9 +52,11 @@ void initBeginState(void)
 
 void checkNumber(int buttonNumber)
 {
-	if(state == RESPONSE)
+	if(state == RESPONSE) //only in response state the interrupts will work
 	{
 		lcd_clear();
+		
+		//gamelogic to check what to do with the pressed button
 		if(numbers[currentPosition] == buttonNumber)
 		{		
 			if(currentPosition == score)
@@ -74,6 +82,7 @@ void checkNumber(int buttonNumber)
 	}
 }
 
+//buttton innterrupts for PE4 - PE7
 ISR( INT7_vect )
 {
 	checkNumber(3);
@@ -111,32 +120,34 @@ Version :    	DMK, Initial code
 	}
 }
 
+//checks if button is pressed, if so begin the game
 void beginState(void)
 {
 		if((PINA | PINB | PIND | PINF | PING) > 1)
 		{
 			state = ANSWER;
-			srand(TCNT1);
+			srand(TCNT1); //makes the seed from the output of timer 1, so that function rand() is random
 		}
 }
 
+//interrupt initialize
 void exItrInit(void)
 {
-	EICRB |= 0xFF; // EX0, EX1: rising edge
+	EICRB |= 0xFF; // EX4, EX5, EX6, EX7 : rising edge
 	EIMSK |= 0xF0; // enable intrpt EX7, EX6, EX5, EX4
-	sei();
+	sei();			// turn on global interrupt
 }
 
 void vulEnToonGetallen(void)
 {
 		lcd_writeLine("Onthoud de leds!");
 		int i;
-		for(i = 0 ; i < (score + 1) ; i++)
+		for(i = 0 ; i < (score + 1) ; i++) //loops times the number of the score
 		{
 			if(i == score)
-				numbers[i] = rand() % 4;
+				numbers[i] = rand() % 4; //generates a random number and puts it in the numbers array
 				
-			PORTE = (1 << 4) << numbers[i];
+			PORTE = (1 << 4) << numbers[i]; //displays the random number on the LED
 			//char letters[12];
 			//sprintf(letters, "%d", numbers[i]);
 			//lcd_writeLine(letters);
@@ -163,26 +174,26 @@ Version :    	DMK, Initial code
 *******************************************************************/
 {
 
-	
+	// all to output for in BEGINSTATE to start the game
 	DDRA = 0x00;
 	DDRB = 0x00;
-	
-	DDRC = 0xFF;
-	lcd_init(); // initialize lcd
-	
 	DDRD = 0x00;
-	
-	DDRE = 0xFF; //input buttons, interrupt P4-P7
-	
 	DDRG = 0x00;
 	DDRF = 0x00;
 	
+	DDRC = 0xFF; //lcd display to output
+	
+	lcd_init(); // initialize lcd
+	
+	
+	DDRE = 0xFF; //input buttons player, interrupt P4-P7
+	
 
-	TCCR1B |= 0b00000010;
+	TCCR1B |= 0b00000010; //sets timer, prescaler: 8 (needed to make a random seed in srand())
 	
 	exItrInit();
 		
-	initBeginState();
+	initBeginState(); //writes "press on button" to LCD
 	
 	while (1)
 	{

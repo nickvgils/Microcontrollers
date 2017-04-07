@@ -50,7 +50,6 @@ SUBDIRS :=  \
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
-../src/interrupts.c \
 ../src/LCD.c \
 ../src/ASF/common/boards/user_board/init.c \
 ../src/main.c
@@ -63,25 +62,21 @@ ASM_SRCS +=
 
 
 OBJS +=  \
-src/interrupts.o \
 src/LCD.o \
 src/ASF/common/boards/user_board/init.o \
 src/main.o
 
 OBJS_AS_ARGS +=  \
-src/interrupts.o \
 src/LCD.o \
 src/ASF/common/boards/user_board/init.o \
 src/main.o
 
 C_DEPS +=  \
-src/interrupts.d \
 src/LCD.d \
 src/ASF/common/boards/user_board/init.d \
 src/main.d
 
 C_DEPS_AS_ARGS +=  \
-src/interrupts.d \
 src/LCD.d \
 src/ASF/common/boards/user_board/init.d \
 src/main.d
@@ -100,8 +95,6 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
-
-
 
 
 
